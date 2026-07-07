@@ -289,7 +289,7 @@ if predict:
             try:
 
                 response = requests.post(
-                    API_URL,
+                    f"{API_URL}/predict",
                     json={"text": text},
                     timeout=30
                 )
@@ -308,12 +308,9 @@ if predict:
 
                     confidence = result["confidence"]
 
-                    recommendation = result["recommendation"]
-
-                    motivation = result["motivation"]
-
-                    insight = result["emotion_insight"]
-
+                    recommendation = result.get("recommendation", [])
+                    motivation = result.get("motivation", "")
+                    insight = result.get("emotion_insight", "")
                     icon = emoji.get(primary, "🙂")
 
                     st.success("🎉 Emotion detected successfully!")
@@ -458,7 +455,7 @@ if predict and text.strip() != "":
     try:
 
         response = requests.post(
-            API_URL,
+            f"{API_URL}/predict",
             json={"text": text},
             timeout=30
         )
