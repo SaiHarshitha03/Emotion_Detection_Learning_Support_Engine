@@ -266,7 +266,13 @@ emoji={
 "surprise":"😲"
 }
 
-API_URL = "https://emotion-detection-learning-support-engine.onrender.com"
+BASE_URL = "https://emotion-detection-learning-support-engine.onrender.com"
+
+response = requests.post(
+    f"{BASE_URL}/predict",
+    json={"text": text},
+    timeout=30
+)
 # ==========================================================
 # PREDICTION
 # ==========================================================
