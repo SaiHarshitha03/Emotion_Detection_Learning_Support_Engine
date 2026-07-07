@@ -253,13 +253,6 @@ Add screenshots of:
 
 **Adapa Sai Harshitha**
 
-B.Tech – Artificial Intelligence & Data Science
-
-Vishnu Institute of Technology
-
-GitHub:
-https://github.com/SaiHarshitha03
-
 ---
 
 # ⭐ Support
