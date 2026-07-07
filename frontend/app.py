@@ -1,172 +1,272 @@
-import streamlit as st
-
-
 import os
 import sys
+import requests
+import streamlit as st
+import plotly.graph_objects as go
 
-# ==========================================================
-# ADD PROJECT ROOT
-# ==========================================================
+# ==========================
+# Project Path
+# ==========================
 
 PROJECT_ROOT = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        ".."
-    )
+    os.path.join(os.path.dirname(__file__), "..")
 )
 
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# ==========================================================
-# IMPORTS
-# ==========================================================
-
-import streamlit as st
-import requests
-
 from prediction.predict import get_learning_recommendation
 from analytics.dashboard import show_dashboard
 
-# ==========================================================
-# PAGE CONFIGURATION
-# ==========================================================
+# ==========================
+# Page Config
+# ==========================
 
 st.set_page_config(
-    page_title="Emotion Detection Learning Support",
-    page_icon="😊",
+    page_title="AI Emotion Learning Assistant",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ==========================================================
-# CUSTOM CSS
-# ==========================================================
+# ==========================
+# Premium CSS
+# ==========================
 
 st.markdown("""
 <style>
 
-.main{
-    padding-top:2rem;
+#MainMenu{visibility:hidden;}
+footer{visibility:hidden;}
+header{visibility:hidden;}
+
+.stApp{
+background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+color:white;
 }
 
-.result-card{
-    background:#F8F9FA;
-    border-left:8px solid #1976D2;
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
+/* Sidebar */
+
+section[data-testid="stSidebar"]{
+background:#111827;
+border-right:1px solid #2d3748;
 }
 
-.footer{
+/* Hero */
+
+.hero{
+padding:35px;
+border-radius:25px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+margin-bottom:30px;
+animation:fade .7s ease;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(25px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+/* Cards */
+
+.card{
+padding:25px;
+background:rgba(255,255,255,.05);
+border-radius:20px;
+backdrop-filter:blur(18px);
+box-shadow:0px 5px 20px rgba(0,0,0,.25);
+margin-bottom:20px;
+}
+
+            .tech-card{
+    background:#1e293b;
+    border-radius:18px;
+    padding:25px;
     text-align:center;
-    color:gray;
-    margin-top:50px;
+    transition:.3s;
+    border:1px solid #334155;
+}
+
+.tech-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 10px 25px rgba(0,201,255,.35);
+    border-color:#00c9ff;
+}
+/* Result */
+
+.result{
+padding:25px;
+border-left:8px solid #00c9ff;
+background:white;
+color:black;
+border-radius:18px;
+}
+
+/* Buttons */
+
+.stButton>button{
+
+width:100%;
+height:55px;
+border:none;
+border-radius:15px;
+font-size:18px;
+font-weight:bold;
+
+background:linear-gradient(90deg,#00C9FF,#92FE9D);
+
+color:black;
+
+transition:.3s;
+
+}
+
+.stButton>button:hover{
+
+transform:scale(1.04);
+
+box-shadow:0px 0px 18px #00c9ff;
+
+}
+
+/* Text Area */
+
+textarea{
+
+background:#111827!important;
+
+color:white!important;
+
+font-size:18px!important;
+
+border-radius:15px!important;
+
 }
 
 </style>
-""", unsafe_allow_html=True)
+""",unsafe_allow_html=True)
 
-# ==========================================================
-# SIDEBAR
-# ==========================================================
+# ==========================
+# Sidebar
+# ==========================
 
-st.sidebar.title("🎯 Analyze Emotion")
+with st.sidebar:
 
-st.sidebar.success(
-    "Emotion Detection Learning Support System"
-)
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
+        width=90
+    )
 
-st.sidebar.markdown("---")
+    st.title("🧠 AI Workspace")
 
-st.sidebar.subheader("Supported Emotions")
+    st.success("🟢 Online")
 
-st.sidebar.write("😊 Joy")
-st.sidebar.write("😢 Sadness")
-st.sidebar.write("😠 Anger")
-st.sidebar.write("😨 Fear")
-st.sidebar.write("❤️ Love")
-st.sidebar.write("😲 Surprise")
+    st.markdown("---")
 
-st.sidebar.markdown("---")
+    st.button("🏠 Home", use_container_width=True)
+    st.button("🎭 Emotion Scan", use_container_width=True)
+    st.button("📊 Analytics", use_container_width=True)
+    st.button("📜 History", use_container_width=True)
+    st.button("⚙️ Settings", use_container_width=True)
 
-st.sidebar.info("""
-**Model Used**
+    st.markdown("---")
 
-• Logistic Regression
+    # 👇 Move this INSIDE the sidebar
+    st.markdown("""
+    <div style="
+    background:#1e293b;
+    border:1px solid #334155;
+    border-radius:18px;
+    padding:18px;
+    ">
 
-**Dataset**
-
-• Emotion NLP Dataset
-
-• Google GoEmotions
-""")
-
-# ==========================================================
-# HEADER
-# ==========================================================
-
-st.title("🎭 Emotion Detection Learning Support System")
-
-st.markdown(
-    """
-    <h4 style='color:gray; margin-top:-10px;'>
-    Artificial Intelligence Powered Emotion Recognition
+    <h4 style="text-align:center;color:white;">
+    Project Details
     </h4>
-    """,
-    unsafe_allow_html=True
+
+    <p style="color:#CBD5E1;">
+    🤖 <b>Model</b><br>
+    Logistic Regression
+    </p>
+
+    <p style="color:#CBD5E1;">
+    📚 <b>Dataset</b><br>
+    GoEmotions
+    </p>
+
+    <p style="color:#CBD5E1;">
+    🚀 <b>Version</b><br>
+    v2.0
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    
+
+    
+
+# ==========================
+# Hero
+# ==========================
+
+st.markdown("""
+
+<div class="hero">
+
+<h1 style="font-size:55px;">
+🧠 AI Emotion Learning Assistant
+</h1>
+
+<h3 style="color:#CBD5E1;">
+
+Understand emotions • Improve learning • Stay motivated
+
+</h3>
+
+</div>
+
+""",unsafe_allow_html=True)
+
+# ==========================
+# Input Card
+# ==========================
+
+st.markdown("<div class='card'>",unsafe_allow_html=True)
+
+text=st.text_area(
+
+"💬 Tell me how you're feeling",
+
+height=180,
+
+placeholder="Example: I am excited but nervous about tomorrow's interview."
+
 )
 
-# ==========================================================
-# USER INPUT
-# ==========================================================
+col1,col2=st.columns(2)
 
-text = st.text_area(
-    "Enter your sentence",
-    height=170,
-    placeholder="Example: I feel very happy today."
-)
+predict=col1.button("🚀 Analyze Emotion",use_container_width=True)
 
-col1, col2 = st.columns(2)
+clear=col2.button("🗑 Clear",use_container_width=True)
 
-predict = col1.button(
-    "Predict Emotion",
-    use_container_width=True
-)
-
-clear = col2.button(
-    "Clear",
-    use_container_width=True
-)
+st.markdown("</div>",unsafe_allow_html=True)
 
 if clear:
     st.rerun()
 
-# ==========================================================
-# EMOJI MAP
-# ==========================================================
-
-emoji = {
-
-    "joy":"😊",
-
-    "sadness":"😢",
-
-    "anger":"😠",
-
-    "fear":"😨",
-
-    "love":"❤️",
-
-    "surprise":"😲"
-
+emoji={
+"joy":"😊",
+"sadness":"😢",
+"anger":"😠",
+"fear":"😨",
+"love":"❤️",
+"surprise":"😲"
 }
 
-# ==========================================================
-# API
-# ==========================================================
-
-API_URL = "http://127.0.0.1:8000/predict"
+API_URL="http://127.0.0.1:8000/predict"
 # ==========================================================
 # PREDICTION
 # ==========================================================
@@ -174,12 +274,11 @@ API_URL = "http://127.0.0.1:8000/predict"
 if predict:
 
     if text.strip() == "":
-
-        st.warning("⚠️ Please enter some text.")
+        st.warning("⚠ Please enter some text.")
 
     else:
 
-        with st.spinner("Analyzing emotion..."):
+        with st.spinner("🧠 AI is analyzing your emotion..."):
 
             try:
 
@@ -193,74 +292,107 @@ if predict:
 
                     result = response.json()
 
-                    primary_emotion = result["primary_emotion"].lower()
-                    secondary_emotion = result["secondary_emotion"].lower()
+                    primary = result["primary_emotion"].lower()
+                    secondary = result["secondary_emotion"].lower()
 
-                    primary_confidence = result["primary_confidence"]
-                    secondary_confidence = result["secondary_confidence"]
+                    primary_score = result["primary_confidence"]
+                    secondary_score = result["secondary_confidence"]
 
-                    mixed_emotion = result["mixed_emotion"]
+                    mixed = result["mixed_emotion"]
 
                     confidence = result["confidence"]
 
                     recommendation = result["recommendation"]
+
                     motivation = result["motivation"]
-                    emotion_insight = result["emotion_insight"]
 
-                    icon = emoji.get(primary_emotion, "🙂")
+                    insight = result["emotion_insight"]
 
-                    st.success("Prediction Completed Successfully!")
+                    icon = emoji.get(primary, "🙂")
 
-                    st.markdown(
-                        f"""
-                        <div class="result-card">
+                    st.success("🎉 Emotion detected successfully!")
 
-                        <h2 style="text-align:center;">
+                    col1, col2 = st.columns([2, 1])
 
-                        {icon} {primary_emotion.upper()}
+                    with col1:
 
-                        </h2>
+                        st.markdown(f"""
+                        <div class="result">
+
+                        <h1 style="font-size:50px;">
+                        {icon} {primary.title()}
+                        </h1>
+
+                        <h3>Confidence : {primary_score:.2f}%</h3>
 
                         </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                        """, unsafe_allow_html=True)
 
-                    st.subheader("📝 Input Text")
-                    st.info(text)
+                    with col2:
 
-                    st.subheader("🎯 Primary Emotion")
+                        fig = go.Figure(go.Indicator(
 
-                    st.success(
-                        f"{icon} {primary_emotion.title()} "
-                        f"({primary_confidence:.2f}%)"
-                    )
+                            mode="gauge+number",
 
-                    st.subheader("🎭 Secondary Emotion")
+                            value=primary_score,
 
-                    st.info(
-                        f"{emoji.get(secondary_emotion,'🙂')} "
-                        f"{secondary_emotion.title()} "
-                        f"({secondary_confidence:.2f}%)"
-                    )
+                            title={"text": "Confidence"},
 
-                    st.subheader("🧠 Mixed Emotion Detection")
+                            gauge={
 
-                    if mixed_emotion:
+                                "axis": {"range": [0, 100]},
 
-                        st.warning(
-                            f"Your text expresses a mixture of "
-                            f"**{primary_emotion.title()}** and "
-                            f"**{secondary_emotion.title()}** emotions."
+                                "bar": {"color": "#00C9FF"},
+
+                                "bgcolor": "#E5E7EB"
+
+                            }
+
+                        ))
+
+                        fig.update_layout(
+                            height=300,
+                            margin=dict(l=10, r=10, t=40, b=10)
                         )
 
-                    else:
-
-                        st.success(
-                            "A single dominant emotion was detected."
+                        st.plotly_chart(
+                            fig,
+                            use_container_width=True
                         )
 
-                    st.subheader("📊 Confidence Scores")
+                    st.markdown("---")
+
+                    c1, c2 = st.columns(2)
+
+                    with c1:
+
+                        st.markdown("## 🎭 Secondary Emotion")
+
+                        st.info(
+                            f"{emoji.get(secondary,'🙂')} "
+                            f"{secondary.title()} "
+                            f"({secondary_score:.2f}%)"
+                        )
+
+                    with c2:
+
+                        st.markdown("## 🧠 Mixed Emotion")
+
+                        if mixed:
+
+                            st.warning(
+                                f"Your text contains both "
+                                f"**{primary.title()}** and "
+                                f"**{secondary.title()}** emotions."
+                            )
+
+                        else:
+
+                            st.success("Single dominant emotion detected.")
+
+                    st.markdown("---")
+
+                    st.subheader("📊 Confidence Distribution")
 
                     for emotion_name, score in confidence.items():
 
@@ -269,26 +401,31 @@ if predict:
                             f"({score:.2f}%)"
                         )
 
-                        st.progress(min(score / 100, 1.0))
+                        st.progress(score / 100)
 
-                    st.subheader("📚 Learning Recommendations")
+                    st.markdown("---")
+
+                    st.subheader("💡 AI Learning Coach")
 
                     if isinstance(recommendation, list):
 
                         for tip in recommendation:
-                            st.write("✅", tip)
+
+                            st.success("✅ " + tip)
 
                     else:
 
-                        st.write(recommendation)
+                        st.success(recommendation)
 
-                    st.subheader("💡 Motivation")
+                    st.markdown("---")
+
+                    st.subheader("💬 AI Motivation")
 
                     st.info(motivation)
 
                     st.subheader("🧠 Emotion Insight")
 
-                    st.success(emotion_insight)
+                    st.success(insight)
 
                 else:
 
@@ -304,7 +441,7 @@ if predict:
 
                 st.exception(e)
                 # ==========================================================
-# PREDICTION HISTORY
+# HISTORY
 # ==========================================================
 
 if "history" not in st.session_state:
@@ -324,116 +461,212 @@ if predict and text.strip() != "":
 
             result = response.json()
 
-            emotion = result["primary_emotion"]
-
             st.session_state.history.insert(
                 0,
                 {
                     "text": text,
-                    "emotion": emotion
+                    "emotion": result["primary_emotion"]
                 }
             )
 
-            if len(st.session_state.history) > 10:
+            st.session_state.history = st.session_state.history[:10]
 
-                st.session_state.history = (
-                    st.session_state.history[:10]
-                )
-
-    except Exception:
+    except:
         pass
 
-
 # ==========================================================
-# SIDEBAR HISTORY
+# HISTORY PANEL
 # ==========================================================
 
-st.sidebar.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-st.sidebar.subheader("Recent Predictions")
+st.markdown("""
+<h2 style='text-align:center;'>
+📜 Recent Emotion History
+</h2>
+""", unsafe_allow_html=True)
 
 if len(st.session_state.history) == 0:
 
-    st.sidebar.write("No predictions yet.")
+    st.info("No predictions yet.")
 
 else:
 
-    for item in st.session_state.history:
+    cols = st.columns(2)
 
-        icon = emoji.get(item["emotion"], "🙂")
+    for i, item in enumerate(st.session_state.history):
 
-        st.sidebar.markdown(
-            f"""
-**{icon} {item['emotion'].title()}**
+        with cols[i % 2]:
 
-{item['text'][:45]}...
+            icon = emoji.get(item["emotion"], "🙂")
 
----
-"""
-        )
+            st.markdown(f"""
+<div style="
+background:#1f2430;
+border-radius:15px;
+padding:20px;
+margin-bottom:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+">
+<h3 style="margin:0;color:white;">
+{icon} {item['emotion'].title()}
+</h3>
 
+<p style="margin-top:12px;color:#CBD5E1;">
+{item['text']}
+</p>
+
+</div>
+""", unsafe_allow_html=True)
 
 # ==========================================================
-# PROJECT INFORMATION
+# ANALYTICS
 # ==========================================================
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+st.markdown("""
+<h2 style='text-align:center;'>
+📊 Analytics Dashboard
+</h2>
+""", unsafe_allow_html=True)
 
-with col1:
+show_dashboard(st.session_state.history)
 
-    st.subheader("✨ Project Features")
+# ==========================================================
+# PROJECT INFO
+# ==========================================================
 
-    st.markdown("""
-- 🎭 Emotion Detection
-- 🤖 Machine Learning Prediction
-- 🧠 Mixed Emotion Recognition
-- 📚 Learning Recommendations
-- ⚡ FastAPI Backend
-- 🎨 Streamlit Frontend
-- 📊 Interactive Analytics Dashboard
-""")
+st.markdown("<br>", unsafe_allow_html=True)
 
-with col2:
+st.markdown("""
+<h2 style="text-align:center;margin-bottom:35px;">
+✨ Platform Features
+</h2>
+""", unsafe_allow_html=True)
 
-    st.subheader("🛠 Technology Stack")
+cards = [
+    ("🎭", "Emotion Detection",
+     "Detect user emotions using Machine Learning."),
+    ("📚", "AI Learning Support",
+     "Personalized recommendations based on emotions."),
+    ("📊", "Analytics Dashboard",
+     "Interactive dashboards, prediction history and insights.")
+]
 
-    st.markdown("""
-- Python
-- Streamlit
-- FastAPI
-- Scikit-Learn
-- TensorFlow
-- Pandas
-- Plotly
-""")
+c1, c2, c3 = st.columns(3)
 
+for col, (icon, title, desc) in zip([c1, c2, c3], cards):
+    with col:
+        st.markdown(f"""
+<div style="
+background:#1e293b;
+border:1px solid #334155;
+border-radius:20px;
+padding:30px 25px;
+height:280px;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+margin-bottom:35px;
+">
+
+<div style="font-size:45px;">{icon}</div>
+
+<h3 style="color:white;margin-top:15px;margin-bottom:15px;font-size:28px;">
+{title}
+</h3>
+
+<p style="color:#CBD5E1;font-size:18px;line-height:1.6;margin:0;">
+{desc}
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+# ==========================================================
+# TECHNOLOGY
+# ==========================================================
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+st.markdown("""
+<h2 style="text-align:center;margin-bottom:35px;">
+⚙️ Technology Stack
+</h2>
+""", unsafe_allow_html=True)
+
+cards = [
+    ("🎨", "Frontend", "Streamlit"),
+    ("⚡", "Backend", "FastAPI"),
+    ("🧠", "ML Model", "Logistic Regression"),
+    ("📚", "Dataset", "GoEmotions"),
+]
+
+cols = st.columns(4, gap="large")
+
+for col, (icon, title, value) in zip(cols, cards):
+    with col:
+        st.markdown(f"""
+<div style="
+background:#1e293b;
+border:1px solid #334155;
+border-radius:20px;
+padding:28px 20px;
+height:260px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+">
+
+<div style="font-size:46px;">{icon}</div>
+
+<div style="
+margin-top:15px;
+color:#94a3b8;
+font-size:18px;
+font-weight:500;
+">
+{title}
+</div>
+
+<div style="
+margin-top:18px;
+color:white;
+font-size:24px;
+font-weight:700;
+">
+{value}
+</div>
+
+</div>
+""", unsafe_allow_html=True)
 # ==========================================================
 # FOOTER
 # ==========================================================
 
-st.markdown("---")
+st.markdown("<hr>", unsafe_allow_html=True)
 
-st.markdown(
-"""
-<div class='footer'>
+st.markdown("""
+<center>
 
-<h3>Emotion Detection Learning Support System</h3>
+<h2>🧠 AI Emotion Learning Assistant</h2>
 
-<p>
-AI-Powered Learning Support using Emotion Recognition
+<p style='color:gray;'>
+
+Built with ❤️ using
+Python • Streamlit • FastAPI • Scikit-Learn
+
 </p>
 
 <p>
-Developed for the <b>Skill Wallet Project</b>
+
+Emotion Detection & Learning Support System
+
 </p>
 
-<p>
-Built using ❤️ Python, FastAPI, Streamlit & Machine Learning
-</p>
+</center>
+""", unsafe_allow_html=True)
 
-</div>
-""",
-unsafe_allow_html=True
-)
+

@@ -37,7 +37,7 @@ def show_dashboard(history):
 
     st.dataframe(
         df,
-        width="stretch"
+        use_container_width=True
     )
 
     # ----------------------------
@@ -97,8 +97,9 @@ def show_dashboard(history):
 
     st.plotly_chart(
         fig_bar,
-        width="stretch"
+        use_container_width=True
     )
+    
 
     # ----------------------------
     # Pie Chart
@@ -126,5 +127,5 @@ def show_dashboard(history):
 
     st.plotly_chart(
         fig_pie,
-        width="stretch"
+        use_container_width=True
     )
